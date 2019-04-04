@@ -46,7 +46,7 @@ namespace AkkaClusterExample
                     cluster {
                         seed-nodes = [
                             ""akka.tcp://ClusterServer@127.0.0.1:2551"",
-                            ""akka.tcp://ClusterServer@127.0.0.1:2552"",
+                            ""akka.tcp://ClusterServer@127.0.0.1:2552""
                         ]
                         roles = [client]
                     }
