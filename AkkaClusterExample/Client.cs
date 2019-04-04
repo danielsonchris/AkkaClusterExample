@@ -124,7 +124,7 @@ namespace AkkaClusterExample
             }
         }
 
-        private bool IsRunning { get; set; } = false;
+        public bool IsRunning { get; set; } = false;
 
         public void Stop()
         {
