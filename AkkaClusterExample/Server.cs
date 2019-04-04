@@ -19,6 +19,9 @@ namespace AkkaClusterExample
             });
         }
 
+        /// <summary>
+        /// Runs the cluster test.
+        /// </summary>
         private void _RunCluster()
         {
             var config = ConfigurationFactory.ParseString(@"
@@ -38,7 +41,8 @@ namespace AkkaClusterExample
                             ""akka.tcp://ClusterServer@127.0.0.1:2551"",
                             ""akka.tcp://ClusterServer@127.0.0.1:2552"",
                         ]
-                        roles = [scheduler]
+                        auto-down-unreachable-after = 30s
+                        roles = [clusterbackend]
                     }
                 }");
             List<ActorSystem> systems = new List<ActorSystem>();
@@ -64,60 +68,10 @@ namespace AkkaClusterExample
         }
 
         /// <summary>
-        /// 
+        /// Runs the remote only test.
         /// </summary>
         private void _RunRemote()
         {
-            //var config = ConfigurationFactory.ParseString(@"
-            //akka {
-            //    actor {
-            //        provider = ""Akka.Cluster.ClusterActorRefProvider, Akka.Cluster""
-            //        deployment {
-            //            /greeting {
-            //                router = round-robin-pool # routing strategy
-            //                nr-of-instances = 1 # max number of total routees
-            //                cluster {
-            //                    enabled = on
-            //                    allow-local-routees = off
-            //                    use-role = server
-            //                    max-nr-of-instances-per-node = 10
-            //                }
-            //            }
-            //            /testing {
-            //                router = round-robin-pool # routing strategy
-            //                nr-of-instances = 1 # max number of total routees
-            //                cluster {
-            //                    enabled = on
-            //                    allow-local-routees = off
-            //                    use-role = server
-            //                    max-nr-of-instances-per-node = 2
-            //                }
-            //            }
-            //        }
-            //        debug {  
-            //          receive = on 
-            //          autoreceive = on
-            //          lifecycle = on
-            //          event-stream = on
-            //          unhandled = on
-            //        }
-            //    }
-            //    remote {
-            //        log-remote-lifecycle-events = DEBUG
-            //        dot-netty.tcp {
-            //            hostname = ""127.0.0.1""
-            //            port = 2551
-            //        }
-            //    }
-            //    cluster {
-            //        seed-nodes = [
-            //            ""akka.tcp://ClusterSystem@127.0.0.1:2551"",
-            //        ]
-            //        auto-down-unreachable-after = 30s
-            //        roles = []
-            //    }
-            //}");
-
             var config = ConfigurationFactory.ParseString(@"
                 akka {
                     actor {

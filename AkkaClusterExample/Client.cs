@@ -26,6 +26,9 @@ namespace AkkaClusterExample
             });
         }
 
+        /// <summary>
+        /// Runs the cluster test.
+        /// </summary>
         private void _ClusterRun()
         {
             var config = ConfigurationFactory.ParseString(@"
