@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Threading.Tasks;
 using Akka.Actor;
 using Akka.Routing;
 
@@ -35,21 +36,37 @@ namespace AkkaClusterExample
         {
             Console.WriteLine(Context.Self + ": GreetingActor init ...");
 
-            Receive<Ping>(greet =>
+            //var testing = Context.ActorOf(Props.Create<EchoActor>().WithRouter(Context.Props.RouterConfig));
+            var testing = Context.ActorOf(Props.Create<EchoActor>());
+
+            //Receive<Ping>(greet =>
+            //{
+            //    Console.WriteLine(Context.Self + " ==> " + greet.Message);
+
+            //    // var testing = Context.ActorOf(Props.Create<EchoActor>().WithDeploy(new Deploy(
+            //    //    new RemoteScope(Address.Parse("akka.tcp://ClusterSystem@127.0.0.1:2551"))
+            //    // )));
+            //    testing.Tell(new Hello(greet.Message));
+            //    //Sender.Tell(new Pong("Hi, I received <" + greet.Message + "> ^_^ "));
+            //});
+
+            ReceiveAsync<Ping>(async ping =>
             {
-                Console.WriteLine(Context.Self + " ==> " + greet.Message);
 
-                var testing = Context.ActorOf(Props.Create<EchoActor>().WithRouter(Context.Props.RouterConfig));
-                // var testing = Context.ActorOf(Props.Create<EchoActor>().WithDeploy(new Deploy(
-                //    new RemoteScope(Address.Parse("akka.tcp://ClusterSystem@127.0.0.1:2551"))
-                // )));
-                testing.Tell(new Hello(greet.Message));
 
-                // Sender.Tell(new Pong("Hi, I received <" + greet.Message + "> ^_^ "));
+                await Task.Delay(0);
+                Console.WriteLine("Async! " + ping.Message + " " + Context.Self.Path);
             });
 
             Receive<Pong>(greet => { Console.WriteLine(Context.Self + " ==> " + greet.Message); });
         }
+
+        public override void AroundPreStart()
+        {
+            base.AroundPreStart();
+            Console.WriteLine("AroundPreStart called");
+        }
+
     }
 
     public class EchoActor : ReceiveActor

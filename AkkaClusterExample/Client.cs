@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using Akka.Actor;
 using Akka.Cluster.Routing;
 using Akka.Configuration;
+using Akka.Event;
 using Akka.Routing;
 
 namespace AkkaClusterExample
@@ -15,21 +16,23 @@ namespace AkkaClusterExample
     /// </summary>
     public class Client
     {
+
+        private Task task = null; 
         public void Start()
         {
             if (IsRunning) return;
             IsRunning = true;
-            var task = Task.Run(() =>
+            task = Task.Run(() =>
             {
                 //_Run();
-                _ClusterRun();
+                ClusterRun();
             });
         }
 
         /// <summary>
         /// Runs the cluster test.
         /// </summary>
-        private void _ClusterRun()
+        private void ClusterRun()
         {
             var config = ConfigurationFactory.ParseString(@"
                 akka {
@@ -39,8 +42,8 @@ namespace AkkaClusterExample
                     remote {
                         log-remote-lifecycle-events = DEBUG
                         dot-netty.tcp {
-                            hostname = ""127.0.0.1""
-                            port = 8081
+                            #hostname = ""127.0.0.1""
+                            port = 0
                         }
                     }
                     cluster {
@@ -54,12 +57,18 @@ namespace AkkaClusterExample
 
             using (var system = ActorSystem.Create("ClusterServer", config))
             {
+                var deadletterWatchMonitorProps = Props.Create(() => new DeadletterMonitor());
+                var deadletterWatchActorRef = system.ActorOf(deadletterWatchMonitorProps, "DeadLetterMonitoringActor");
+
+                // subscribe to the event stream for messages of type "DeadLetter"
+                system.EventStream.Subscribe(deadletterWatchActorRef, typeof(DeadLetter));
+
                 var paths = new List<string> { "/user/greeting" };
-                ConsistentHashMapping hashMapping = msg =>
-                {
-                    if (msg is string) return msg;
-                    return null;
-                };
+                //ConsistentHashMapping hashMapping = msg =>
+                //{
+                //    if (msg is string) return msg;
+                //    return null;
+                //};
                 //build a basic router
                 var greetingRouter =
                     system.ActorOf(
@@ -75,7 +84,6 @@ namespace AkkaClusterExample
                 //var greetingRouter = system.ActorOf(
                     //Props.Empty.WithRouter(new ClusterRouterGroup(new ConsistentHashingGroup(greetingURI), router)));
                         //new ClusterRouterGroupSettings(10, false, "client", ImmutableHashSet.Create(greetingURI)))));
-                    
 
                 int count = 0;
                 while (IsRunning)
@@ -91,7 +99,7 @@ namespace AkkaClusterExample
         /// <summary>
         /// Run an example using strictly "remote" and no cluster technology.
         /// </summary>
-        private void _Run()
+        private void Run()
         {
             var config = ConfigurationFactory.ParseString(@"
                 akka {
@@ -111,7 +119,7 @@ namespace AkkaClusterExample
             using (var system = ActorSystem.Create("Sniffy", config))
             {
                 var greeting = system.ActorSelection("akka.tcp://ClusterServer@127.0.0.1:2551/user/greeting");
-                var echo = system.ActorSelection("akka.tcp://ClusterServer@127.0.0.1:2551/user/echo");
+                //var echo = system.ActorSelection("akka.tcp://ClusterServer@127.0.0.1:2551/user/echo");
                 var greetingActorRef = system.ActorOf(Props.Create<GreetingActor>());
                 var echoActorRef = system.ActorOf(Props.Create<EchoActor>());
 

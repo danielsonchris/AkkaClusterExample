@@ -15,14 +15,14 @@ namespace AkkaClusterExample
             Task.Run(() =>
             {
                 //_RunRemote();
-                _RunCluster();
+                RunCluster();
             });
         }
 
         /// <summary>
         /// Runs the cluster test.
         /// </summary>
-        private void _RunCluster()
+        private void RunCluster()
         {
             var config = ConfigurationFactory.ParseString(@"
                 akka {
@@ -41,6 +41,7 @@ namespace AkkaClusterExample
                             ""akka.tcp://ClusterServer@127.0.0.1:2551"",
                             ""akka.tcp://ClusterServer@127.0.0.1:2552"",
                         ]
+                        #max-nr-of-instances-per-node = 10
                         auto-down-unreachable-after = 30s
                         roles = [clusterbackend]
                     }
@@ -59,7 +60,7 @@ namespace AkkaClusterExample
             }
             while (IsRunning)
             {
-                Thread.Sleep(1000);
+                Thread.Sleep(1);
             }
             foreach (var system in systems)
             {
@@ -70,7 +71,7 @@ namespace AkkaClusterExample
         /// <summary>
         /// Runs the remote only test.
         /// </summary>
-        private void _RunRemote()
+        private void RunRemote()
         {
             var config = ConfigurationFactory.ParseString(@"
                 akka {
@@ -100,7 +101,7 @@ namespace AkkaClusterExample
             }
             while (IsRunning)
             {
-                Thread.Sleep(1000);
+                Thread.Sleep(1);
             }
             foreach (var system in systems)
             {
