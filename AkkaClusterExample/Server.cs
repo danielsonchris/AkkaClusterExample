@@ -8,13 +8,14 @@ namespace AkkaClusterExample
 {
     public class Server
     {
+        private Task task = null;
         public void Start()
         {
             if (IsRunning) return;
             IsRunning = true;
-            Task.Run(() =>
+            task = Task.Run(() =>
             {
-                //_RunRemote();
+                //RunRemote();
                 RunCluster();
             });
         }

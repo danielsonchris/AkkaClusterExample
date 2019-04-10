@@ -14,18 +14,19 @@ namespace AkkaClusterExample
             server.Start();
 
             Client client = new Client();
+            client.Start();
 
             string input = null;
             while (input != "e")
             {
-                if (!client.IsRunning && input != "c")
-                {
-                    Console.WriteLine("Press 'c' and <enter> to start the client.");
-                } 
-                else if (input == "c")
-                {
-                    client.Start();
-                }
+                //if (!client.IsRunning && input != "c")
+                //{
+                //    Console.WriteLine("Press 'c' and <enter> to start the client.");
+                //} 
+                //else if (input == "c")
+                //{
+                //    client.Start();
+                //}
                 Console.WriteLine("Press 'e' and <enter> to exit.");
                 input = Console.ReadLine();
             }

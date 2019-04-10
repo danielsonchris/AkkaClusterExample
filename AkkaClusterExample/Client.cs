@@ -24,7 +24,7 @@ namespace AkkaClusterExample
             IsRunning = true;
             task = Task.Run(() =>
             {
-                //_Run();
+                //Run();
                 ClusterRun();
             });
         }
@@ -70,28 +70,22 @@ namespace AkkaClusterExample
                 //    return null;
                 //};
                 //build a basic router
-                var greetingRouter =
-                    system.ActorOf(
-                        new ClusterRouterGroup(
+                ClusterRouterGroup crg = new ClusterRouterGroup(
                             local: new ConsistentHashingGroup(paths),//.WithHashMapping(hashMapping),
                             settings: new ClusterRouterGroupSettings(
                                 10,
                                 ImmutableHashSet.Create(paths.ToArray()),
-                                allowLocalRoutees: true,
-                                useRole: null))
-                            .Props(), "router");
-
-                //var greetingRouter = system.ActorOf(
-                    //Props.Empty.WithRouter(new ClusterRouterGroup(new ConsistentHashingGroup(greetingURI), router)));
-                        //new ClusterRouterGroupSettings(10, false, "client", ImmutableHashSet.Create(greetingURI)))));
+                                allowLocalRoutees: false,
+                                useRole: null));
+                var greetingRouter = system.ActorOf(crg.Props(), "router");
 
                 int count = 0;
                 while (IsRunning)
                 {
                     //greetingRouter.Ask(new Ping("neato"));
-                    greetingRouter.Tell(new Ping($"test {count++}"));
+                    greetingRouter.Tell(new Ping($"Tell({count++})"));
 
-                    Thread.Sleep(1000);
+                    Thread.Sleep(100);
                 }
             }
         }
