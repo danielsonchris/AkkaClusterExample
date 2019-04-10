@@ -64,6 +64,7 @@ namespace AkkaClusterExample
                 system.EventStream.Subscribe(deadletterWatchActorRef, typeof(DeadLetter));
 
                 var paths = new List<string> { "/user/greeting" };
+                //I left this in, as an example on how to generate an inline hashMapping.
                 //ConsistentHashMapping hashMapping = msg =>
                 //{
                 //    if (msg is string) return msg;
@@ -82,9 +83,7 @@ namespace AkkaClusterExample
                 int count = 0;
                 while (IsRunning)
                 {
-                    //greetingRouter.Ask(new Ping("neato"));
                     greetingRouter.Tell(new Ping($"Tell({count++})"));
-
                     Thread.Sleep(100);
                 }
             }
@@ -112,8 +111,8 @@ namespace AkkaClusterExample
 
             using (var system = ActorSystem.Create("Sniffy", config))
             {
+
                 var greeting = system.ActorSelection("akka.tcp://ClusterServer@127.0.0.1:2551/user/greeting");
-                //var echo = system.ActorSelection("akka.tcp://ClusterServer@127.0.0.1:2551/user/echo");
                 var greetingActorRef = system.ActorOf(Props.Create<GreetingActor>());
                 var echoActorRef = system.ActorOf(Props.Create<EchoActor>());
 
